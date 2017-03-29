@@ -1,0 +1,5 @@
+<launch>
+        <node pkg="dataset_navigation_simulator" type="pub_test_plan" name="pub_test_plan" output="screen">
+              <param name="path_file" value="/home/namals/ros_indigo_ws/src/dataset_navigation_simulator/launch/test_path.txt" />
+        </node>
+</launch>

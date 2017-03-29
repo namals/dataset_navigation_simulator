@@ -1,0 +1,5 @@
+<launch>
+        <node pkg="dataset_navigation_simulator" type="test_envmodel" name="test_envmodel_node" output="screen">
+              <param name="octomap_fname" value="/home/namals/Research/Data/octomaps/s2.1-b2-coridoor.bt" />
+        </node>
+</launch>

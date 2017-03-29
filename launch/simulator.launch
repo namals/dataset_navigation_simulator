@@ -1,0 +1,15 @@
+<launch>
+        <node type="dataset_nav_simulator_node" pkg="dataset_navigation_simulator" name="dataset_nav_simulator_node" output="screen">
+
+              <!-- Filename of the environment model, either octomap .bt file or PCL .pcd file -->
+              <!--param name="envmodel_fname" value="/home/namals/Research/Data/octomaps/s2.1-b2-coridoor.bt" /-->
+              <param name="envmodel_fname" value="/home/namals/Research/Data/octomaps/s2.1-b2-coridoor-5cm.bt" />
+
+              <param name="fixed_frame" value="map" />
+              
+              <rosparam param="robot_names">['base_link1']</rosparam>
+              
+              <rosparam command="load" file="$(find dataset_navigation_simulator)/launch/robots.yaml" />
+
+        </node>
+</launch>

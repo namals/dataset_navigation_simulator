@@ -1,0 +1,40 @@
+#ifndef _SENSOR_H_
+#define _SENSOR_H_
+
+#include <tf/Transform.h>
+#include <dataset_navigation_simulator/util.h>
+#include <dataset_navigation_simulator/environment_model.h>
+
+#include <memory>
+
+
+namespace dataset_navigation_simulator
+{
+
+    class Sensor
+    {
+    public:
+        typedef std::shared_ptr<Sensor> Ptr;
+        typedef std::shared_ptr<const Sensor> ConstPtr;
+        
+        Sensor(const SensorSpec& sensor_spec, const tf::Transform& t);
+
+        void setSensorSpec(const SensorSpec& sensor_spec);
+        
+        SensorSpec getSensorSpec();
+
+        void setTransform(const tf::Transform& t);
+
+        tf::Transform& getTransform();
+
+void spinOnce(EnvironmentModel::Ptr env);
+
+    protected:
+        SensorSpec sensor_spec_;
+
+        Transform t_;
+    };
+    
+} //~namespace
+
+#endif

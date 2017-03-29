@@ -1,0 +1,13 @@
+base_link1:
+        pos_x: 1.0
+        pos_y: 0.4
+        pos_z: 0.45
+        roll: 0
+        pitch: 0
+        yaw: 30
+        radius: 0.3
+        sensor_names: ['openni2_camera']
+        
+        openni2_camera: {r_min: 0.5, r_max: 3.5, hor_fov: 1.01, ver_fov: 0.79, ray_res: 0.0285, x: 0, y: 0, z: 0.1, roll: 0, pitch: 0, yaw: 0}
+
+        map_srv_name: /octomap_binary
