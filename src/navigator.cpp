@@ -14,8 +14,12 @@ Navigator::step()
     if( !robot_ )
         return;
 
+    if( nav_status_.status == NavigationStatus::SUCCEEDED ||
+        nav_status_.status == NavigationStatus::ABORTED )
+        nav_status_.status = NavigationStatus::WAITING;
+
     // step if the current plan is still active
-    if(goal_status_.status != actionlib_msgs::GoalStatus::ACTIVE)
+    if(nav_status_.status != NavigationStatus::ACTIVE)
     {
         ROS_INFO_STREAM(rname << " : plan is inactive");
         return;
@@ -87,7 +91,7 @@ Navigator::step()
         tf::poseMsgToTF(plan_.poses[plan_idx_].pose, curr_pose_);
         robot_->setRobotPose(curr_pose_);
         if(plan_idx_ == plan_.poses.size()-1 )
-            goal_status_.status = actionlib_msgs::GoalStatus::SUCCEEDED;
+            nav_status_.status = NavigationStatus::SUCCEEDED;
 
         ROS_INFO_STREAM(rname << " : robot successfully stepped along the planned path");
     }
@@ -95,7 +99,7 @@ Navigator::step()
     {
         // path is in collision, abort the navigation
         ROS_INFO_STREAM(rname << " : robot is on a collision course, aborting plan");
-        goal_status_.status = actionlib_msgs::GoalStatus::ABORTED;
+        nav_status_.status = NavigationStatus::ABORTED;
     }
 }
 
@@ -114,5 +118,5 @@ Navigator::planCallback(const nav_msgs::Path::ConstPtr& path)
     ROS_INFO("Plan callback");
     plan_ = *path;
     plan_idx_ = 0;
-    goal_status_.status = actionlib_msgs::GoalStatus::ACTIVE;
+    nav_status_.status = NavigationStatus::ACTIVE;
 }

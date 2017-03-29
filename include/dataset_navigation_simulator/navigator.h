@@ -1,7 +1,7 @@
 #ifndef _NAVIGATOR_H_
 #define _NAVIGATOR_H_
 
-#include <actionlib_msgs/GoalStatus.h>
+//#include <actionlib_msgs/GoalStatus.h>
 #include <nav_msgs/Path.h>
 #include <ros/ros.h>
 #include <dataset_navigation_simulator/robot.h>
@@ -10,6 +10,19 @@
 
 namespace dataset_navigation_simulator
 {
+    struct NavigationStatus
+    {
+        enum Status
+        {
+            WAITING = 100,
+            ACTIVE,            
+            SUCCEEDED,
+            ABORTED,
+            INIT
+        };
+
+        char status;
+    };
 
     class Navigator
     {
@@ -24,7 +37,7 @@ namespace dataset_navigation_simulator
             , look_ahead_dist_(d_len_thresh_)
             , map_service_name_("octomap_binary")            
         {
-            goal_status_.status = actionlib_msgs::GoalStatus::PENDING; 
+            nav_status_.status = NavigationStatus::INIT; 
         }
 
         void step();
@@ -50,14 +63,14 @@ namespace dataset_navigation_simulator
             return plan_;
         }
 
-        void setGoalStatus(actionlib_msgs::GoalStatus& status)
+        void setNavigationStatus(NavigationStatus& status)
         {
-            goal_status_ = status;
+            nav_status_ = status;
         }
 
-        actionlib_msgs::GoalStatus getGoalStatus()
+        NavigationStatus getNavigationStatus()
         {
-            return goal_status_;
+            return nav_status_;
         }
 
         void setDeltaLengthThreshold(double dlen_thresh)
@@ -110,7 +123,8 @@ namespace dataset_navigation_simulator
         
         nav_msgs::Path plan_;
 
-        actionlib_msgs::GoalStatus goal_status_;
+        //actionlib_msgs::GoalStatus goal_status_;
+        NavigationStatus nav_status_;
 
         tf::Transform curr_pose_;
 

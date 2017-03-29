@@ -43,9 +43,10 @@ Simulator::run()
             rdata.second->spinOnce();
 
             // // don't publish if navigator in SUCCEEDED state
-            // actionlib_msgs::GoalStatus status = navigators_.at(rdata.second->getRobotFrameName())->getGoalStatus();
-            // if( status.status == actionlib_msgs::GoalStatus::SUCCEEDED )
-            //     continue;
+            NavigationStatus status = navigators_.at(rdata.second->getRobotFrameName())->getNavigationStatus();
+            
+            if( status.status == NavigationStatus::WAITING )
+                continue;
             
             // get all sensor data of this robot
             std::vector<Sensor::Ptr> sensors = rdata.second->getSensors();
