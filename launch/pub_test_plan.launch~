@@ -1,5 +1,0 @@
-<launch>
-        <node pkg="dataset_navigation_simulator" type="pub_test_plan" name="pub_test_plan" output="screen">
-              <>
-        </node>
-</launch>
