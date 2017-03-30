@@ -6,6 +6,7 @@
 
 #include <sensor_msgs/PointCloud2.h>
 #include <tf/LinearMath/Transform.h>
+#include <octomap/octomap.h>
 
 namespace dataset_navigation_simulator
 {
@@ -67,6 +68,16 @@ namespace dataset_navigation_simulator
     };
 
     tf::Transform computeTransform(double x, double y, double z, double roll, double pitch, double yaw);
+
+    /*!
+     * \brief Convert obstacle points in the octomap to a PCL point cloud
+     */
+    void octomapToPCLPointCloud(octomap::OcTree* octree, pcl::PointCloud<pcl::PointXYZ>::Ptr pcd);
+
+    void ExtractAllBasicVoxels(octomap::OcTreeKey key,
+                               uint32_t depth,
+                               uint32_t max_tree_depth,
+                               octomap::KeySet& key_set);
 }
 
 #endif

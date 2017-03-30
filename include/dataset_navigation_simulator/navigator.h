@@ -1,12 +1,11 @@
 #ifndef _NAVIGATOR_H_
 #define _NAVIGATOR_H_
 
-//#include <actionlib_msgs/GoalStatus.h>
 #include <nav_msgs/Path.h>
 #include <ros/ros.h>
 #include <dataset_navigation_simulator/robot.h>
 
-#include <memory>
+#include <boost/shared_ptr.hpp>
 
 namespace dataset_navigation_simulator
 {
@@ -27,8 +26,8 @@ namespace dataset_navigation_simulator
     class Navigator
     {
     public:
-        typedef std::shared_ptr<Navigator> Ptr;
-        typedef std::shared_ptr<const Navigator> ConstPtr;
+        typedef boost::shared_ptr<Navigator> Ptr;
+        typedef boost::shared_ptr<const Navigator> ConstPtr;
         
         Navigator(Robot::Ptr robot)            
             : robot_(robot)

@@ -1,7 +1,9 @@
 #include <iostream>
-#include <thread>
+
+#include <boost/thread.hpp>
 
 #include <tf/transform_broadcaster.h>
+#include <ros/ros.h>
 
 #include <dataset_navigation_simulator/environment_model.h>
 #include <geometry_msgs/TransformStamped.h>
@@ -15,8 +17,8 @@ using std::cin;
 void publishTF(tf::StampedTransform& transformTF);
 
 int main(int argc, char* argv[])
-{
-    ros::init(argc, argv, "test_envmodel");
+{    
+    ros::init(argc, argv, "test_envmodel");    
 
     ros::NodeHandle nh;
     ros::NodeHandle private_nh("~");    
@@ -64,7 +66,7 @@ int main(int argc, char* argv[])
     tf::StampedTransform transformTF;
     transform.header.stamp = ros::Time::now();
     tf::transformStampedMsgToTF(transform, transformTF);
-    std::thread pubtf_thread(publishTF, std::ref(transformTF));
+    boost::thread pubtf_thread(publishTF, boost::ref(transformTF));
 
     dns::SensorSpec sensor_spec(0.5, 3.5, 1.01229, 0.785398);
     sensor_msgs::PointCloud2 sensor_msg;

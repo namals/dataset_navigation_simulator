@@ -5,16 +5,15 @@
 #include <dataset_navigation_simulator/util.h>
 #include <dataset_navigation_simulator/environment_model.h>
 
-#include <memory>
-
+#include <boost/shared_ptr.hpp>
 
 namespace dataset_navigation_simulator
 {
     class Sensor
     {
     public:
-        typedef std::shared_ptr<Sensor> Ptr;
-        typedef std::shared_ptr<const Sensor> ConstPtr;
+        typedef boost::shared_ptr<Sensor> Ptr;
+        typedef boost::shared_ptr<const Sensor> ConstPtr;
         
         Sensor(const SensorSpec& sensor_spec, const tf::Transform& t_s_r, std::string name, std::string robot_name);
 

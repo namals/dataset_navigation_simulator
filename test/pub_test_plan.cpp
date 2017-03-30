@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
     path.header.stamp = ros::Time::now();
     path.header.frame_id = "map";
     
-    std::ifstream pfile(path_file);
+    std::ifstream pfile(path_file.c_str());
     // read the first line
     std::string q_str;
     //pfile >> q_str;
@@ -59,18 +59,18 @@ int main(int argc, char* argv[])
         pose.header.seq = ln++;
         pose.header.frame_id = "map";        
         boost::trim(vals[0]);
-        pose.pose.position.x = std::stod(vals[0]);
+        pose.pose.position.x = atof(vals[0].c_str()); //std::stod(vals[0]);
         boost::trim(vals[1]);
-        pose.pose.position.y = std::stod(vals[1]);
+        pose.pose.position.y = atof(vals[1].c_str()); //std::stod(vals[1]);
         boost::trim(vals[2]);
-        pose.pose.position.z = std::stod(vals[2]);
+        pose.pose.position.z = atof(vals[2].c_str()); //std::stod(vals[2]);
         double r, p, y;
         boost::trim(vals[3]);
-        r = angles::from_degrees(std::stod(vals[3]));
+        r = angles::from_degrees(atof(vals[3].c_str()) /*std::stod(vals[3])*/);
         boost::trim(vals[4]);
-        p = angles::from_degrees(std::stod(vals[4]));
+        p = angles::from_degrees(atof(vals[4].c_str()) /*std::stod(vals[4])*/);
         boost::trim(vals[5]);
-        y = angles::from_degrees(std::stod(vals[5]));
+        y = angles::from_degrees(atof(vals[5].c_str()) /*std::stod(vals[5])*/);
         pose.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(r,p,y);
 
         path.poses.push_back(pose);

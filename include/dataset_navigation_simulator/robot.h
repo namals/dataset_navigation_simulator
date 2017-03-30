@@ -2,11 +2,13 @@
 #define _ROBOT_H_
 
 #include <cstring>
-#include <memory>
-#include <mutex>
 
 #include <dataset_navigation_simulator/environment_model.h>
 #include <dataset_navigation_simulator/sensor.h>
+
+#include <boost/shared_ptr.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/locks.hpp>
 
 namespace dataset_navigation_simulator
 {
@@ -14,8 +16,8 @@ namespace dataset_navigation_simulator
     class Robot
     {
     public:
-        typedef std::shared_ptr<Robot> Ptr;
-        typedef std::shared_ptr<const Robot> ConstPtr;
+        typedef boost::shared_ptr<Robot> Ptr;
+        typedef boost::shared_ptr<const Robot> ConstPtr;
         
         Robot(std::string robot_frame,
               std::string world_frame,              
@@ -59,7 +61,7 @@ namespace dataset_navigation_simulator
 
         tf::Transform getRobotPose()
         {
-            std::unique_lock<std::mutex> lock(mutex_);
+            boost::unique_lock<boost::mutex> lock(mutex_);
             return pose_;
         }
 
@@ -108,7 +110,7 @@ namespace dataset_navigation_simulator
         
         EnvironmentModel::Ptr env_;
 
-        std::mutex mutex_;
+        boost::mutex mutex_;
     };
     
 } //~namespace

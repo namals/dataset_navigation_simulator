@@ -5,7 +5,7 @@ project(dataset_navigation_simulator)
 # add_definitions(-std=c++11)
 set(CMAKE_BUILD_TYPE Debug)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -27,7 +27,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
-find_package(PCL REQUIRED)
+find_package(PCL 1.7 REQUIRED)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -172,21 +172,25 @@ add_executable(pub_test_plan test/pub_test_plan.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}
+  ${PCL_LIBRARIES}
   ${catkin_LIBRARIES}
 )
 
 target_link_libraries(test_envmodel
   ${PROJECT_NAME}
+  ${PCL_LIBRARIES}
   ${catkin_LIBRARIES}
 )
 
 target_link_libraries(dataset_nav_simulator_node
   ${PROJECT_NAME}
+  ${PCL_LIBRARIES}
   ${catkin_LIBRARIES}
 )
 
 target_link_libraries(pub_test_plan
   ${PROJECT_NAME}
+  ${PCL_LIBRARIES}
   ${catkin_LIBRARIES}
 )
 

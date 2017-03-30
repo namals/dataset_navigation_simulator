@@ -1,7 +1,7 @@
 #include <dataset_navigation_simulator/simulator.h>
 #include <angles/angles.h>
 
-#include <memory>
+#include <boost/thread.hpp>
 
 using namespace dataset_navigation_simulator;
 
@@ -13,8 +13,8 @@ Simulator::Simulator()
     setUp();
 
     // start the thread
-    main_thread_ = std::shared_ptr<std::thread>( new std::thread( std::bind(&Simulator::run, this) ) );
-    tf_thread_ = std::shared_ptr<std::thread>( new std::thread( std::bind(&Simulator::publish_tf, this) ) );
+    main_thread_ = boost::shared_ptr<boost::thread>( new boost::thread( boost::bind(&Simulator::run, this) ) );
+    tf_thread_ = boost::shared_ptr<boost::thread>( new boost::thread( boost::bind(&Simulator::publish_tf, this) ) );
 }
 
 Simulator::~Simulator()
@@ -30,16 +30,19 @@ Simulator::run()
 {
     while(!paused_)
     {
-        for(auto robot_nav : navigators_ )
+        //for(auto robot_nav : navigators_ )        
+        for(boost::unordered_map<std::string, Navigator::Ptr>::iterator nit = navigators_.begin(); nit != navigators_.end(); nit++)
         {
+            std::pair<std::string, Navigator::Ptr> robot_nav = *nit;
             robot_nav.second->step();
         }
 
         usleep(100000);  // wait 100 ms so that all TF's are adjusted for current pose of robots
         
         // go through each robot and spin each robot once
-        for(auto rdata : robots_)
+        for(boost::unordered_map<std::string, Robot::Ptr>::iterator rit = robots_.begin(); rit != robots_.end(); rit++)
         {
+            std::pair<std::string, Robot::Ptr> rdata = *rit;
             rdata.second->spinOnce();
 
             // // don't publish if navigator in SUCCEEDED state
@@ -50,8 +53,9 @@ Simulator::run()
             
             // get all sensor data of this robot
             std::vector<Sensor::Ptr> sensors = rdata.second->getSensors();
-            for(Sensor::Ptr sensor : sensors)
+            for(std::vector<Sensor::Ptr>::iterator sit = sensors.begin(); sit != sensors.end(); sit++)
             {
+                Sensor::Ptr sensor = *sit;
                 sensor_msg_pubs_.at(sensor->getSensorFQName()).publish(sensor->getCurrentSensorData());
             }            
         }
@@ -83,8 +87,9 @@ Simulator::setUp()
     private_nh_->param<std::string>("fixed_frame", fixed_frame_, "map");
 
     // now for each robot, read the sensor and navigator parameters
-    for(std::string robot_name : robot_names)
+    for(std::vector<std::string>::iterator rnit = robot_names.begin(); rnit != robot_names.end(); rnit++)
     {
+        std::string robot_name = *rnit;
         double pos_x, pos_y, pos_z, roll, pitch, yaw;
         private_nh_->param(robot_name + "/pos_x", pos_x, 0.0);
         private_nh_->param(robot_name + "/pos_y", pos_y, 0.0);
@@ -98,8 +103,10 @@ Simulator::setUp()
         Robot::Ptr robot(new Robot(robot_name, fixed_frame_, t_r_m, rradius, env_));        
         std::vector<std::string> sensor_names;
         private_nh_->getParam(robot_name + "/sensor_names", sensor_names);
-        for(std::string sensor_name: sensor_names)
+        
+        for(std::vector<std::string>::iterator snit = sensor_names.begin(); snit != sensor_names.end(); snit++)
         {
+            std::string sensor_name = *snit;
             std::map<std::string,double> sensor_details;
             private_nh_->getParam(robot_name + "/" + sensor_name, sensor_details);
             
@@ -174,8 +181,8 @@ Simulator::setUp()
 
         std::string map_srv_name;
         private_nh_->param(robot_name + "/map_srv_name", map_srv_name, std::string("octomap_binary"));
-        ros::service::waitForService(map_srv_name);
         ROS_INFO_STREAM(robot_name << " : Waiting for service  " << map_srv_name << " to become available!");
+        ros::service::waitForService(map_srv_name);        
         navigator->setMapServiceName(map_srv_name, *nh_);
         navigators_.insert(std::make_pair(robot_name, navigator));
 
@@ -192,13 +199,16 @@ Simulator::publish_tf()
     while(ros::ok())
     {        
         // publish all robot pose transforms
-        for(auto robot: robots_)
+        //for(auto robot: robots_)
+        for(boost::unordered_map<std::string, Robot::Ptr>::iterator rit = robots_.begin(); rit != robots_.end(); rit++)
         {
+            std::pair<std::string, Robot::Ptr> robot = *rit;
             tbr_.sendTransform(tf::StampedTransform(robot.second->getRobotPose(), ros::Time::now(), fixed_frame_, robot.second->getRobotFrameName()));
 
             std::vector<Sensor::Ptr> sensors = robot.second->getSensors();
-            for(auto sensor: sensors)
+            for(std::vector<Sensor::Ptr>::iterator sit = sensors.begin(); sit != sensors.end(); sit++)
             {
+                Sensor::Ptr sensor = *sit;
                 tbr_.sendTransform(tf::StampedTransform(sensor->getRelativeTransform(), ros::Time::now(), robot.second->getRobotFrameName(), sensor->getSensorName()));
             }
         }        

@@ -23,7 +23,7 @@ EnvironmentModel::EnvironmentModel(octomap::OcTree* octree)
 }
 
 void
-EnvironmentModel::getSensorFrustum(const tf::StampedTransform& sensor_pose, const SensorSpec& sensor_spec, sensor_msgs::PointCloud2& sensor_msg)
+EnvironmentModel::getSensorFrustum(const tf::Transform& sensor_pose, const SensorSpec& sensor_spec, sensor_msgs::PointCloud2& sensor_msg)
 {
     if( cloud_ )
         getSensorFrustumFromPC(sensor_pose, sensor_spec, sensor_msg);
@@ -32,7 +32,7 @@ EnvironmentModel::getSensorFrustum(const tf::StampedTransform& sensor_pose, cons
 }
 
 void
-EnvironmentModel::getSensorFrustumFromPC(const tf::StampedTransform& sensor_pose, const SensorSpec& sensor_spec, sensor_msgs::PointCloud2& sensor_msg)
+EnvironmentModel::getSensorFrustumFromPC(const tf::Transform& sensor_pose, const SensorSpec& sensor_spec, sensor_msgs::PointCloud2& sensor_msg)
 {
     tf::Vector3 sensor_translation = sensor_pose.getOrigin();
     Eigen::Vector3f origin(sensor_translation.x(),
@@ -68,7 +68,7 @@ EnvironmentModel::getSensorFrustumFromPC(const tf::StampedTransform& sensor_pose
 }
 
 void
-EnvironmentModel::getSensorFrustumFromOctomap(const tf::StampedTransform& sensor_pose, const SensorSpec& sensor_spec, sensor_msgs::PointCloud2& sensor_msg)
+EnvironmentModel::getSensorFrustumFromOctomap(const tf::Transform& sensor_pose, const SensorSpec& sensor_spec, sensor_msgs::PointCloud2& sensor_msg)
 {
     tf::Vector3 sensor_translation = sensor_pose.getOrigin();
     octomap::point3d origin(sensor_translation.x(),
