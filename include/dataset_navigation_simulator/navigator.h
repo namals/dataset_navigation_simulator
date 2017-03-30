@@ -4,24 +4,25 @@
 #include <nav_msgs/Path.h>
 #include <ros/ros.h>
 #include <dataset_navigation_simulator/robot.h>
+#include <dataset_navigation_simulator/NavigationStatus.h>
 
 #include <boost/shared_ptr.hpp>
 
 namespace dataset_navigation_simulator
 {
-    struct NavigationStatus
-    {
-        enum Status
-        {
-            WAITING = 100,
-            ACTIVE,            
-            SUCCEEDED,
-            ABORTED,
-            INIT
-        };
+    /* struct NavigationStatus */
+    /* { */
+    /*     enum Status */
+    /*     { */
+    /*         WAITING = 100, */
+    /*         ACTIVE,             */
+    /*         SUCCEEDED, */
+    /*         ABORTED, */
+    /*         INIT */
+    /*     }; */
 
-        char status;
-    };
+    /*     char status; */
+    /* }; */
 
     class Navigator
     {
@@ -121,8 +122,7 @@ namespace dataset_navigation_simulator
         double look_ahead_dist_;
         
         nav_msgs::Path plan_;
-
-        //actionlib_msgs::GoalStatus goal_status_;
+        
         NavigationStatus nav_status_;
 
         tf::Transform curr_pose_;

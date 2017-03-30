@@ -40,6 +40,7 @@ namespace dataset_navigation_simulator
         ros::NodeHandle* private_nh_;
         boost::unordered_map<std::string, ros::Publisher> sensor_msg_pubs_;
         boost::unordered_map<std::string, ros::Subscriber> nav_cmd_subs_;
+        boost::unordered_map<std::string, ros::Publisher> nav_status_pubs_;
         tf::TransformBroadcaster tbr_;
                 
         void setUp();

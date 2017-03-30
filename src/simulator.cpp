@@ -2,6 +2,7 @@
 #include <angles/angles.h>
 
 #include <boost/thread.hpp>
+#include <boost/foreach.hpp>
 
 using namespace dataset_navigation_simulator;
 
@@ -47,6 +48,9 @@ Simulator::run()
 
             // // don't publish if navigator in SUCCEEDED state
             NavigationStatus status = navigators_.at(rdata.second->getRobotFrameName())->getNavigationStatus();
+
+            // now publish navigator status
+            nav_status_pubs_.at(rdata.second->getRobotFrameName()).publish(status);
             
             if( status.status == NavigationStatus::WAITING )
                 continue;
@@ -58,10 +62,8 @@ Simulator::run()
                 Sensor::Ptr sensor = *sit;
                 sensor_msg_pubs_.at(sensor->getSensorFQName()).publish(sensor->getCurrentSensorData());
             }            
-        }
-
-        // now publish navigator status
-
+        }        
+        
         usleep(900000); // sleep for 900ms
     }
 }
@@ -184,11 +186,14 @@ Simulator::setUp()
         ROS_INFO_STREAM(robot_name << " : Waiting for service  " << map_srv_name << " to become available!");
         ros::service::waitForService(map_srv_name);        
         navigator->setMapServiceName(map_srv_name, *nh_);
-        navigators_.insert(std::make_pair(robot_name, navigator));
+        navigators_.insert(std::make_pair(robot_name, navigator));        
 
         // for each navigator, register a plan callback and store it
         ros::Subscriber plan_sub = private_nh_->subscribe<nav_msgs::Path>(robot_name + "/plan", 1, &Navigator::planCallback, navigator.get());
         nav_cmd_subs_.insert(std::make_pair(robot_name, plan_sub));
+        // for each navigator, advertise a topic to publish its status
+        ros::Publisher nav_status_pub = private_nh_->advertise<NavigationStatus>(robot_name + "/plan_status", 1);
+        nav_status_pubs_.insert(std::make_pair(robot_name, nav_status_pub));
     }
 }
 
@@ -211,7 +216,7 @@ Simulator::publish_tf()
                 Sensor::Ptr sensor = *sit;
                 tbr_.sendTransform(tf::StampedTransform(sensor->getRelativeTransform(), ros::Time::now(), robot.second->getRobotFrameName(), sensor->getSensorName()));
             }
-        }        
+        }
 
         rate.sleep();
     }

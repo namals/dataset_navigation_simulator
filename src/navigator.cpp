@@ -116,7 +116,7 @@ void
 Navigator::planCallback(const nav_msgs::Path::ConstPtr& path)
 {
     ROS_INFO("Plan callback");
-    plan_ = *path;
-    plan_idx_ = 0;
+    plan_ = *path; // overwrite the old plan, 
+    plan_idx_ = 0; 
     nav_status_.status = NavigationStatus::ACTIVE;
 }
