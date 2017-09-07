@@ -8,6 +8,7 @@
 #include <dataset_navigation_simulator/robot.h>
 #include <dataset_navigation_simulator/navigator.h>
 #include <tf/transform_broadcaster.h>
+#include <std_msgs/Bool.h>
 
 namespace dataset_navigation_simulator
 {
@@ -17,7 +18,7 @@ namespace dataset_navigation_simulator
     public:
         Simulator();
 
-        ~Simulator();                
+        ~Simulator();
 
         // TODO : add pause capability through a service
         // void pause();
@@ -34,22 +35,28 @@ namespace dataset_navigation_simulator
         boost::shared_ptr<boost::thread> tf_thread_;
 
         // parameters
-        std::string fixed_frame_;        
-        
+        std::string fixed_frame_;
+
         ros::NodeHandle* nh_;
         ros::NodeHandle* private_nh_;
-        boost::unordered_map<std::string, ros::Publisher> sensor_msg_pubs_;
+        ros::Subscriber pause_resume_sub_;        
         boost::unordered_map<std::string, ros::Subscriber> nav_cmd_subs_;
         boost::unordered_map<std::string, ros::Publisher> nav_status_pubs_;
+        boost::unordered_map<std::string, ros::Publisher> sensor_msg_pubs_;
+        boost::unordered_map<std::string, ros::Publisher> sensor_fov_vis_pubs_;
         tf::TransformBroadcaster tbr_;
-                
+
         void setUp();
 
         void run();
 
         void publish_tf();
+
+        void pauseResumeCb(std_msgs::Bool msg);
+
+        void publishSensorFOV(ros::Publisher& pub, Sensor::Ptr spec);
     };
-    
+
 } // ~namespace
 
 #endif

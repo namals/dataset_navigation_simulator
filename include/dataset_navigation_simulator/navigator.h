@@ -4,7 +4,8 @@
 #include <nav_msgs/Path.h>
 #include <ros/ros.h>
 #include <dataset_navigation_simulator/robot.h>
-#include <dataset_navigation_simulator/NavigationStatus.h>
+//#include <dataset_navigation_simulator/NavigationStatus.h>
+#include <navigation_3d_msgs/NavigationStatus.h>
 
 #include <boost/shared_ptr.hpp>
 
@@ -24,20 +25,22 @@ namespace dataset_navigation_simulator
     /*     char status; */
     /* }; */
 
+    using navigation_3d_msgs::NavigationStatus;
+
     class Navigator
     {
     public:
         typedef boost::shared_ptr<Navigator> Ptr;
         typedef boost::shared_ptr<const Navigator> ConstPtr;
-        
-        Navigator(Robot::Ptr robot)            
+
+        Navigator(Robot::Ptr robot)
             : robot_(robot)
             , d_len_thresh_(0.3)
             , d_theta_thresh_(0.17)
             , look_ahead_dist_(d_len_thresh_)
-            , map_service_name_("octomap_binary")            
+            , map_service_name_("octomap_binary")
         {
-            nav_status_.status = NavigationStatus::INIT; 
+            nav_status_.status = NavigationStatus::INIT;
         }
 
         void step();
@@ -111,18 +114,18 @@ namespace dataset_navigation_simulator
         }
 
         void planCallback(const nav_msgs::Path::ConstPtr& path);
-        
+
     private:
         Robot::Ptr robot_;
-        
+
         double d_len_thresh_;
 
         double d_theta_thresh_;
 
         double look_ahead_dist_;
-        
+
         nav_msgs::Path plan_;
-        
+
         NavigationStatus nav_status_;
 
         tf::Transform curr_pose_;
@@ -132,8 +135,10 @@ namespace dataset_navigation_simulator
         std::string map_service_name_;
 
         ros::ServiceClient map_service_client_;
-    }; 
-    
+
+        boost::mutex mutex_;
+    };
+
 } //~namespace
 
 #endif

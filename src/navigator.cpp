@@ -10,7 +10,7 @@ Navigator::step()
 {
     std::string rname = robot_->getRobotFrameName();
     ROS_INFO_STREAM(rname << " : navigator step");
-    
+
     if( !robot_ )
         return;
 
@@ -33,8 +33,8 @@ Navigator::step()
         ROS_INFO_STREAM(rname << " : map service " << map_service_name_ << " is unavailable!");
         return;
     }
-    
-    octomap_msgs::GetOctomap srv;    
+
+    octomap_msgs::GetOctomap srv;
     if( !map_service_client_.call(srv) )
     {
         ROS_INFO_STREAM(rname << " : map info unavailable with service name " << map_service_name_);
@@ -42,12 +42,14 @@ Navigator::step()
     }
 
     ROS_INFO_STREAM(rname << " : map info available");
-    octomap::OcTree* octree = static_cast<octomap::OcTree*>(octomap_msgs::binaryMsgToMap(srv.response.map));    
+    octomap::OcTree* octree = static_cast<octomap::OcTree*>(octomap_msgs::binaryMsgToMap(srv.response.map));
 
     double d_len_ = 0;
     double d_theta_ = 0;
     tf::Transform pose = curr_pose_;  // initialize the pose
     tf::Transform npose_tf;           // next pose along the path
+
+    mutex_.lock();
 
     double rradius = robot_->getRobotRadius();
     int lookahead_idx = plan_idx_ + 1;
@@ -56,17 +58,19 @@ Navigator::step()
     {
         // get the next pose in the planned path
         geometry_msgs::Pose npose = plan_.poses[lookahead_idx].pose;
-        // check if this pose results in a collision       
+        octomap::point3d npos(npose.position.x, npose.position.y, npose.position.z);
+        // check if this pose results in a collision
         octomap::point3d bbmax(npose.position.x + rradius, npose.position.y + rradius, npose.position.z + rradius);
         octree->setBBXMax(bbmax);
         octomap::point3d bbmin(npose.position.x - rradius, npose.position.y - rradius, npose.position.z - rradius);
         octree->setBBXMin(bbmin);
-        
+
         for(octomap::OcTree::leaf_bbx_iterator lit = octree->begin_leafs_bbx(bbmin, bbmax, octree->getTreeDepth()); lit != octree->end_leafs_bbx() && !in_collision; lit++ )
         {
             // check if any one these points is occupied and is within the radius
             octomap::OcTreeKey key = lit.getKey();
-            if( octree->isNodeOccupied(*lit))
+            octomap::point3d vox_pos = lit.getCoordinate();
+            if( npos.distance(vox_pos) <= rradius && octree->isNodeOccupied(*lit))
                 in_collision = true;
         }
 
@@ -75,21 +79,23 @@ Navigator::step()
 
         // else update the lookahead index for next iteration
         lookahead_idx++;
-        
+
         // update d_len and d_theta_
         tf::poseMsgToTF(npose, npose_tf);
         d_len_ += (npose_tf.getOrigin() - pose.getOrigin()).length();
         d_theta_ += fabs( angles::shortest_angular_distance( tf::getYaw(npose_tf.getRotation()), tf::getYaw(pose.getRotation()) ) );
         // update pose
         pose = npose_tf;
+        ROS_INFO_STREAM(rname << " : pose -> [" << pose.getOrigin().x() << ", " << pose.getOrigin().y() << "," << pose.getOrigin().z() << ", " << tf::getYaw(pose.getRotation()) << "]");
     }
 
     // jump to next valid pose if not in collision
     if( !in_collision)
     {
-        plan_idx_++; 
+        plan_idx_++;
         tf::poseMsgToTF(plan_.poses[plan_idx_].pose, curr_pose_);
         robot_->setRobotPose(curr_pose_);
+
         if(plan_idx_ == plan_.poses.size()-1 )
             nav_status_.status = NavigationStatus::SUCCEEDED;
 
@@ -101,6 +107,8 @@ Navigator::step()
         ROS_INFO_STREAM(rname << " : robot is on a collision course, aborting plan");
         nav_status_.status = NavigationStatus::ABORTED;
     }
+
+    mutex_.unlock();
 }
 
 void
@@ -116,7 +124,8 @@ void
 Navigator::planCallback(const nav_msgs::Path::ConstPtr& path)
 {
     ROS_INFO("Plan callback");
-    plan_ = *path; // overwrite the old plan, 
-    plan_idx_ = 0; 
+    boost::unique_lock<boost::mutex> lock(mutex_);
+    plan_ = *path; // overwrite the old plan,
+    plan_idx_ = 0;
     nav_status_.status = NavigationStatus::ACTIVE;
 }

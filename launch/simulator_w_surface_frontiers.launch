@@ -1,0 +1,9 @@
+<launch>
+        <include file="$(find dataset_navigation_simulator)/launch/simulator.launch" />
+
+        <include file="$(find dataset_navigation_simulator)/launch/octomap_mapping.launch" />
+
+        <include file="$(find octomap_frontiers3d)/launch/octomap_frontiers3d.launch" />
+
+        <node pkg="rviz" type="rviz" name="rviz" args="-d /home/namals/.rviz/dataset_nav_simulator.rviz" />
+</launch>

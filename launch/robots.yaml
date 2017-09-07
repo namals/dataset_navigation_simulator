@@ -1,10 +1,10 @@
 base_link1:
-        pos_x: 1.0
-        pos_y: 0.4
+        pos_x: 0
+        pos_y: 0
         pos_z: 0.45
         roll: 0
         pitch: 0
-        yaw: 30
+        yaw: 0
         radius: 0.3
         sensor_names: ['openni2_camera']
         

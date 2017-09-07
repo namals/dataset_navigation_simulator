@@ -1,10 +1,11 @@
-#ifndef _UTIL_H_
-#define _UTIL_H_
+#ifndef _DATASET_NAVIGATOR_SIMULATOR_UTIL_H_
+#define _DATASET_NAVIGATOR_SIMULATOR_UTIL_H_
 
 #include <pcl/point_types.h>
 #include <pcl/common/projection_matrix.h>
 
 #include <sensor_msgs/PointCloud2.h>
+#include <geometry_msgs/Point.h>
 #include <tf/LinearMath/Transform.h>
 #include <octomap/octomap.h>
 
@@ -38,6 +39,62 @@ namespace dataset_navigation_simulator
         {
         }
 
+        void getSensorFOVCorners(std::vector<geometry_msgs::Point>& fov_corners)
+                {
+                    // use this only if the sensor is an RGB-D sensor
+                    fov_corners.resize(8);
+
+                    double hor_fov_2 = hor_fov/2;
+                    double ver_fov_2 = ver_fov/2;
+
+                    // near plane values
+                    geometry_msgs::Point np;
+                    np.x = r_min;
+                    np.y = np.x*tan(hor_fov_2);
+                    np.z = np.x*tan(ver_fov_2);
+
+                    // far plane values
+                    geometry_msgs::Point fp;
+                    fp.x = r_max;
+                    fp.y = fp.x*tan(hor_fov_2);
+                    fp.z = fp.x*tan(ver_fov_2);
+
+                    geometry_msgs::Point p;
+                    p.x = np.x;
+                    p.z = -np.z;
+
+                    // near plane bottom left
+                    p.y = np.y;
+                    fov_corners[0] = p;
+                    // near plane bottom right
+                    p.y = -np.y;
+                    fov_corners[1] = p;
+
+                    p.z = np.z;
+                    // near plane top right
+                    fov_corners[2] = p;
+                    // near plane top left
+                    p.y = np.y;
+                    fov_corners[3] = p;
+
+                    p.x = fp.x;
+                    p.z = -fp.z;
+
+                    // far plane bottom left
+                    p.y = fp.y;
+                    fov_corners[4] = p;
+                    // far plane bottom right
+                    p.y = -fp.y;
+                    fov_corners[5] = p;
+
+                    p.z = fp.z;
+                    // far plane top right
+                    fov_corners[6] = p;
+                    // far plane top left
+                    p.y = fp.y;
+                    fov_corners[7] = p;
+                }
+
     private:
         void generateSensorFOVEdgePoints()
         {
@@ -65,6 +122,8 @@ namespace dataset_navigation_simulator
             }
             sensorFOVEdgePoints->width = sensorFOVEdgePoints->points.size();
         }
+
+
     };
 
     tf::Transform computeTransform(double x, double y, double z, double roll, double pitch, double yaw);

@@ -5,6 +5,7 @@
 #include <pcl/common/projection_matrix.h>
 //#include <pcl/octree/octree_search.h>
 #include <pcl/filters/frustum_culling.h>
+#include <pcl/search/kdtree.h>
 
 #include <octomap/octomap.h>
 #include <tf/transform_datatypes.h>
@@ -36,10 +37,14 @@ namespace dataset_navigation_simulator
          * \brief Get the sensor frustum 
          */
         void getSensorFrustum(const tf::Transform& sensor_pose, const SensorSpec& sensor_spec, sensor_msgs::PointCloud2& sensor_msg);
+
+        bool isRobotInCollision(const tf::Transform& robot_pose, float robot_radius);
         
     private:
         pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_;                   /*!< Point cloud storing the entire environment */
         //pcl::octree::OctreePointCloudSearch<pcl::PointXYZ>::Ptr cld_idx_;  /*!< Point cloud's index */        
+
+        pcl::search::KdTree<pcl::PointXYZ>::Ptr cloud_index_;
         
         octomap::OcTree* octree_;                                     /*!< Octomap representation of the environment */
 

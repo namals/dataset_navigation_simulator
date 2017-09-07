@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   message_generation
   nav_msgs
+  navigation_3d_msgs
   octomap_msgs
   octomap_ros
   octomap_server
@@ -24,6 +25,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   std_msgs
   tf    
+  visualization_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -61,10 +63,10 @@ find_package(PCL 1.7 REQUIRED)
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-add_message_files(
-  FILES
-  NavigationStatus.msg
-)
+#add_message_files(
+#  FILES
+#  NavigationStatus.msg
+#)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -81,13 +83,13 @@ add_message_files(
 # )
 
 ## Generate added messages and services with any dependencies listed here
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-#   DEPENDENCIES
-#   geometry_msgs#   nav_msgs#   sensor_msgs#   std_msgs
-)
-
+#generate_messages(
+#  DEPENDENCIES
+#  std_msgs
+##   DEPENDENCIES
+##   geometry_msgs#   nav_msgs#   sensor_msgs#   std_msgs
+#)
+#
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
 ################################################
@@ -120,7 +122,7 @@ generate_messages(
 catkin_package(
  INCLUDE_DIRS include
 #  LIBRARIES dataset_navigation_simulator
- CATKIN_DEPENDS angles geometry_msgs nav_msgs octomap_msgs octomap_ros octomap_server pcl_conversions pcl_ros roscpp sensor_msgs std_msgs tf
+ CATKIN_DEPENDS angles geometry_msgs nav_msgs navigation_3d_msgs octomap_msgs octomap_ros octomap_server pcl_conversions pcl_ros roscpp sensor_msgs std_msgs tf visualization_msgs
 #  DEPENDS system_lib
 )
 
